@@ -137,11 +137,35 @@ const productos = [
     }, 
 ];
 
- let carrito = []
- const contenedor = document.querySelector('#contenedor')
+let carrito = [];
+const contenedor = document.querySelector('#contenedor');
+const carritoContenedor = document.querySelector('#carritoContenedor');
+const vaciarCarrito = document.querySelector('#vaciarCarrito');
+const precioTotal = document.querySelector('#precioTotal');
+const procesarCompra = document.querySelector ('#procesarCompra');
+const activarFuncion = document.querySelector ('#activarFuncion');
 
- productos.forEach((prod) =>{
-  const {id, nombre, precio, desc, img, cantidad} = prod
+if (activarFuncion) {
+  activarFuncion.addEventListener("click", procesarPedido);
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  carrito = JSON.parse(localStorage.getItem("carrito")) || [];
+
+  mostrarCarrito();
+  
+  if (activarFuncion) {
+    document.querySelector('#activarFuncion').click(procesarPedido)
+  }
+  
+ 
+});
+
+
+
+productos.forEach((prod) =>{
+  const {id, nombre, precio, desc, img, cantidad} = prod;
+  if(contenedor)
   contenedor.innerHTML += ` 
   <div class="card" style="width: 18rem;">
   <img class="card-img-top mt-2" src="${img}" alt="Card image cap">
@@ -154,20 +178,53 @@ const productos = [
   </div>
  </div>
   `
+});
+
+
+if(procesarCompra){
+procesarCompra.addEventListener('click', () =>{
+  if(carrito.length === 0){
+    Swal.fire({
+       title:"Tu carrito está vacio!",
+       text:"Comprá algo para continuar la compra",
+       icon:"error",
+       confirmButtonText: "Aceptar", 
+    }) 
+  } else{
+     location.href = "compra.html"
+     procesarPedido()
+  }
 })
+};
+
+if(vaciarCarrito){
+vaciarCarrito.addEventListener('click', () => {
+    carrito.length = []
+    mostrarCarrito()
+})
+};
 
 function agregarProducto(id){
+  
+  const existe = carrito.some(prod => prod.id === id) 
+  
+  if (existe){
+    const prod = carrito.map( prod => {
+     prod.cantidad ++
+    })
+  } else{
+    const item = productos.find((prod) => prod.id === id)
+    carrito.push(item)    
+  }
 
-const item = productos.find((prod) => prod.id === id)
-  carrito.push(item)
   mostrarCarrito()
-}
+};
 
 const mostrarCarrito = () =>{
-    const modalBody = document.querySelector('.modal .modal-body')
-     
-    modalBody.innerHTML = ' '
-    carrito.forEach((prod) =>{
+  const modalBody = document.querySelector('.modal .modal-body')
+  if(modalBody){ 
+  modalBody.innerHTML = ' '
+  carrito.forEach((prod) =>{
         const{id, nombre,img, desc, cantidad, precio} = prod
         modalBody.innerHTML += `
         <div class="modal-contenedor">
@@ -176,16 +233,59 @@ const mostrarCarrito = () =>{
         </div>
         <div>
           <p>Producto: ${nombre}</p>
-          <p>Precio: ${precio}</p>
+          <p>Precio: ${precio} $</p>
           <p>Cantidad :${cantidad}</p>
           <button onclick="eliminarProducto(${id})" type="button" class="btn btn-danger"  >Eliminar del carrito</button>
         </div>
       </div> `
-    })
-}
+  })
+  }  
+  
+  if(carrito.length === 0){
+      modalBody.innerHTML = `
+      <p class="text-primary parrafo">Todavia no agregaste nada!</p>
+      `;
+  }else{
+      console.log("Algo");
+  }
+  
+
+  carritoContenedor.textContent = carrito.length
+    
+  if(precioTotal){
+    precioTotal.innerText = carrito.reduce((acc, prod) => acc + prod.cantidad* prod.precio, 0);
+  }
+  guardarStorage()
+};
 
 function eliminarProducto(id){
     const camisetaId = id 
     carrito = carrito.filter((camiseta) => camiseta.id !== camisetaId)
     mostrarCarrito()
 }
+
+function guardarStorage(){
+    localStorage.setItem("carrito", JSON.stringify(carrito))
+}
+
+function procesarPedido(){
+
+  carrito.forEach((prod) =>{
+
+    const listaCompra = document.querySelector('#lista-compra tbody')
+    const{id, nombre, precio, cantidad, img} = prod
+
+    const row = document.createElement('tr')
+    row.innerHTML += `
+      <td>
+      <img class="img-fluid img-carrito" src="${img}"/>
+      </td>
+      <td>${nombre}</td>
+      <td>${precio}</td>
+      <td>${cantidad}</td>
+      <td>${precio * cantidad }</td>
+    `
+    listaCompra.appendChild(row)
+  })
+}
+

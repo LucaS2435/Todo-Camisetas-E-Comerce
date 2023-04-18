@@ -1,7 +1,9 @@
 a{
     cursor: pointer;
 }
-
+body{
+    overflow-x: hidden ;
+}
 .modal-contenedor{
     display: flex;
     align-items: center;
@@ -15,4 +17,10 @@ a{
 
 .modal-content{
     background-color: rgb(241, 241, 241);
+}
+
+.parrafo{
+    font-weight: 750;
+    font-style: italic;
+    text-align: center;
 }
