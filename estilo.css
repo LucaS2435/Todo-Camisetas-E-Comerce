@@ -24,3 +24,11 @@ body{
     font-style: italic;
     text-align: center;
 }
+
+#activarFuncion{
+    opacity: 0;
+}
+
+.alerta{
+    font-weight: 900;
+}

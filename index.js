@@ -144,9 +144,15 @@ const vaciarCarrito = document.querySelector('#vaciarCarrito');
 const precioTotal = document.querySelector('#precioTotal');
 const procesarCompra = document.querySelector ('#procesarCompra');
 const activarFuncion = document.querySelector ('#activarFuncion');
+const totalProceso = document.querySelector('#totalProceso');
+const formulario = document.querySelector('#procesar-pago')
 
 if (activarFuncion) {
   activarFuncion.addEventListener("click", procesarPedido);
+}
+
+if(formulario){
+   formulario.addEventListener('submit', enviarPedido)
 }
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -160,8 +166,6 @@ document.addEventListener("DOMContentLoaded", () => {
   
  
 });
-
-
 
 productos.forEach((prod) =>{
   const {id, nombre, precio, desc, img, cantidad} = prod;
@@ -287,5 +291,82 @@ function procesarPedido(){
     `
     listaCompra.appendChild(row)
   })
+  
+  totalProceso.innerText = carrito.reduce((acc, prod) => acc + prod.cantidad* prod.precio, 0)
+
+
+
 }
+
+function enviarPedido(e){
+  e.preventDefault()
+  const persona = document.querySelector('#persona').value
+  const correo = document.querySelector('#correo').value
+  const telefono = document.querySelector('#telefono').value
+  const provincia = document.querySelector('#provincia').value
+  const ciudad = document.querySelector('#ciudad').value
+  const direccion = document.querySelector('#direccion').value
+  
+  if(correo == '' || persona == '' ||telefono == '' ||provincia == '' ||ciudad == '' ||direccion == ''){
+ 
+    Swal.fire({
+      title: "Tenés que completar los datos que faltan!!",
+      text: "Rellena el formulario",
+      icon: "error",
+      confirmButtonText: "Aceptar" 
+  
+    })
+  }else{
+
+   const btn = document.getElementById('button');
+
+    //document.getElementById('form')
+    //.addEventListener('submit', function(event) {
+    //event.preventDefault();
+
+    btn.value = 'Enviando...';
+
+   const serviceID = 'default_service';
+   const templateID = 'template_zsru4vb';
+
+   emailjs.sendForm(serviceID, templateID, this)
+     .then(() => {
+      btn.value = 'Finalizar compra';
+      alert('Enviado!');
+    }, (err) => {
+      btn.value = 'Finalizar compra';
+      alert(JSON.stringify(err));
+    });
+  };
+
+
+
+  const spinner = document.querySelector ('#spinner')
+    spinner.classList.add('d-flex')
+    spinner.classList.remove('d-none')
+    
+    setTimeout(() =>{
+      spinner.classList.remove('d-flex')
+      spinner.classList.add('d-none')
+      formulario.reset()
+    }, 3000)
+
+    const alerExito = document.createElement ('p');
+    alerExito.classList.add('alert', 'alerta', 'd-block', 'text-center', 'col-md-12', 'mt-2', 'alert-success')
+    alerExito.textContent = "Su compra fue realizada correctamente"
+    formulario.appendChild(alerExito)
+
+    setTimeout(()=>{
+      alerExito.remove('')
+    }, 3000)
+
+
+  }
+
+
+
+
+
+
+
 
